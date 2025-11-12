@@ -8,7 +8,7 @@
 ---
 
 ## 🎮 Overview
-**Theo’s World** is a 2D adventure platformer where players guide Theo — a curious dachshund — through colorful worlds to collect bones, unlock hats, and explore new terrains.  
+**Theo’s World** is a 2D adventure platformer where players guide Theo, a curious dachshund, through colorful worlds to collect bones, unlock hats, and explore new terrains.  
 This project began as a self-taught experiment in game design and evolved into a learning journey in **object-oriented programming**, **event handling**, and **state management** using **Python** and **Pygame**.
 
 ---
