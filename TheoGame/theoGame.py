@@ -25,14 +25,16 @@ graphics_path = "TheoGame/graphics/"
 cafe_surface = pygame.image.load(graphics_path + 'backgrounds/cafe.png').convert_alpha() #convert_alpha() converts image to something pygame can work with more easily so game runs faster
 
 theo_surface = pygame.image.load(graphics_path + 'player/TheoSpriteSmall.png').convert_alpha()
-theo_rectangle = theo_surface.get_rect(midbottom = (400, 310)) #.rect() takes surface and draws rectangle around it. later on, will make this process more streamlined with Sprite class
+theo_rect = theo_surface.get_rect(midbottom = (400, 385)) #.rect() takes surface and draws rectangle around it. later on, will make this process more streamlined with Sprite class
 
 text_surface = pixel_font.render("theo's world", False, 'cadetblue3') #TEXT STEP 2: create text surface object // (text string, AA or antialias aka smoothing edges of text and usually want this to be True unless working with pixel art then would be False because the appearance fits better, color)
 text_surface2 = pixel_font.render("theo's world", False, 'gray15') #TEXT STEP 2: create text surface object // (text string, AA or antialias aka smoothing edges of text and usually want this to be True unless working with pixel art then would be False because the appearance fits better, color)
 
 ube_surface = pygame.image.load(graphics_path + 'items/ubeSmall.png').convert_alpha()
 #ube_x_pos = 700
-ube_rectangle = ube_surface.get_rect(midbottom = (700, 385))
+ube_rect = ube_surface.get_rect(midbottom = (700, 385))
+
+n = 0 #testing variable for mouse collision
 
 
 
@@ -50,21 +52,31 @@ while True:
     
     #showing surfaces on the screen at 60 fps
     screen.blit(cafe_surface, (0,0)) #this displays a regular surface on the display surface. process: call display surface itself, then blit aka block image transfer (put one surface on another surface). arguments: (surface to place, position) coordinate system
-    screen.blit(theo_surface, theo_rectangle)
-
-    
+    screen.blit(theo_surface, theo_rect)
     screen.blit(text_surface2, (205,25)) #TEXT STEP 3: blit text surface
     screen.blit(text_surface, (200,20)) #TEXT STEP 3: blit text surface
     
     #basic animations: animating each surface just means changing the position slightly on each frame. use screen.blit that uses a variable that continuously changes the position, recall that our surfaces are constantly being 'updated' at 60 fps. When it's static on the screen, just means that the position is not being altered from frame to frame
-    ube_rectangle.left -= 3 #get ube to move to the left
-    if ube_rectangle.right <= 0 : #if the right side is <= 0, indicates ube has left the screen, so move back to the right
-        ube_rectangle.left = 800 #if statement to place ube surface back to the right if it moves off screen
-    screen.blit(ube_surface, ube_rectangle)
+    ube_rect.left -= 3 #get ube to move to the left
+    if ube_rect.right <= 0 : #if the right side is <= 0, indicates ube has left the screen, so move back to the right
+        ube_rect.left = 800 #if statement to place ube surface back to the right if it moves off screen
+    screen.blit(ube_surface, ube_rect)
+    
+    #check if theo rectangle collides with ube rectangle
+    '''
+    if theo_rect.colliderect(ube_rect): #.colliderect() method checks if 2 rectangles overlap/collide, returns boolean
+        print("Theo got the ube!")
+        #reset ube position
+        ube_rect.left = 800 '''
+    
+    if theo_rect.collidepoint(pygame.mouse.get_pos()): #get_pos() method returns current mouse position as tuple (x,y), collidepoint() method checks if point collides with rectangle, returns boolean
+        print("Your mouse is on Theo!" , str(n)) #testing variable n to see how many times this prints
+        n+=1
+
     
 
     
     pygame.display.update() #continuously update display service to player
     clock.tick(60) #set max frame rate: 60 integer tells pygame that the while true loop should not run faster than 60 fps...don't really have to worry about min frame rate for basic 2d game in pygame
 
-#left off 1:03:50 collisions with rectangles
+#left off 1:08 pygame.mouse
