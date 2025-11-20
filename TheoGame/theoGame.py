@@ -15,13 +15,13 @@ pygame.init() #call at beginning, essentially starts and initiates subparts of p
 screen = pygame.display.set_mode((800,400)) #(tuple (width, height)) #create display surface (what player sees), stored in screen variable
 pygame.display.set_caption("Theo's World :)") #set game title, pass in String
 clock = pygame.time.Clock() #clock object helps with time and control frame rate
-pixel_font = pygame.font.Font("Documents/TheoGame/PixelGame.otf", 75) #TEXT STEP 1: create font object with type and size (font type, font size integer) ////None is default type
+pixel_font = pygame.font.Font("TheoGame/PixelGame.otf", 75) #TEXT STEP 1: create font object with type and size (font type, font size integer) ////None is default type
 
 #Creating Surfaces
 #test_surface = pygame.Surface((100,200)) #create a regular surface (default rectangle), accepts tuple with width and height. but need to actually show it on display surface within while loop below
 #test_surface.fill('thistle3') #fill regular surface with a predefined pygame color code
 #to import image: pygame.image.load('string of image path')
-graphics_path = "Documents/TheoGame/graphics/"
+graphics_path = "TheoGame/graphics/"
 cafe_surface = pygame.image.load(graphics_path + 'backgrounds/cafe.png').convert_alpha() #convert_alpha() converts image to something pygame can work with more easily so game runs faster
 
 theo_surface = pygame.image.load(graphics_path + 'player/TheoSpriteSmall.png').convert_alpha()
