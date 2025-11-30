@@ -4,8 +4,6 @@
 #to have path consistency-keep images in same folder where code is: can have 3 diff folders: graphs, fonts, audio
 
 
-
-
 import pygame
 from sys import exit #used to close any code once we call it
 
@@ -27,8 +25,11 @@ cafe_surface = pygame.image.load(graphics_path + 'backgrounds/cafe.png').convert
 theo_surface = pygame.image.load(graphics_path + 'player/TheoSpriteSmall.png').convert_alpha()
 theo_rect = theo_surface.get_rect(midbottom = (400, 385)) #.rect() takes surface and draws rectangle around it. later on, will make this process more streamlined with Sprite class
 
-text_surface = pixel_font.render("theo's world", False, 'cadetblue3') #TEXT STEP 2: create text surface object // (text string, AA or antialias aka smoothing edges of text and usually want this to be True unless working with pixel art then would be False because the appearance fits better, color)
+text_surface1 = pixel_font.render("theo's world", False, 'cadetblue3') #TEXT STEP 2: create text surface object // (text string, AA or antialias aka smoothing edges of text and usually want this to be True unless working with pixel art then would be False because the appearance fits better, color)
 text_surface2 = pixel_font.render("theo's world", False, 'gray15') #TEXT STEP 2: create text surface object // (text string, AA or antialias aka smoothing edges of text and usually want this to be True unless working with pixel art then would be False because the appearance fits better, color)
+# note that text surface can be made into text rectangle with .get_rect() method if needed for positioning
+text_rect1 = text_surface1.get_rect(center=(400,25)) #TEXT STEP 2.5: create text rectangle for positioning // (positioning argument)
+text_rect2 = text_surface2.get_rect(center=(400,25)) #TEXTs STEP 2.5: create text rectangle for positioning // (positioning argument)
 
 ube_surface = pygame.image.load(graphics_path + 'items/ubeSmall.png').convert_alpha()
 #ube_x_pos = 700
@@ -49,12 +50,22 @@ while True:
             pygame.quit() #whenever we call pygame.quit(), essentially is opposite of pygame.init(). 
             exit() #closes code entirely. closes while loop, so we don't call display update line below after closing (which would otherwise result in error message)
 
+        '''#another way to get mouse position, instead of pygame.mouse.get_pos(), is to check in the event loop: event.pos gives mouse position as tuple (x,y) when MOUSEMOTION event occurs
+        if event.type == pygame.MOUSEMOTION: # can also check for MOUSEBUTTONDOWN and MOUSEBUTTONUP events, to check occur when mouse buttons are pressed and released respectively (see documentation for additional mouse events)
+            print(event.pos) '''
+        
+        '''# exercise: use the event loop to check if the mouse collides with theo rectangle
+        if event.type == pygame.MOUSEMOTION:
+            if theo_rect.collidepoint(event.pos):
+                print("Your mouse is on Theo!" , str(n)) #testing variable n to see how many times this prints
+                n+=1 '''
+
     
     #showing surfaces on the screen at 60 fps
     screen.blit(cafe_surface, (0,0)) #this displays a regular surface on the display surface. process: call display surface itself, then blit aka block image transfer (put one surface on another surface). arguments: (surface to place, position) coordinate system
     screen.blit(theo_surface, theo_rect)
-    screen.blit(text_surface2, (205,25)) #TEXT STEP 3: blit text surface
-    screen.blit(text_surface, (200,20)) #TEXT STEP 3: blit text surface
+    screen.blit(text_rect2, (205,25)) #TEXT STEP 3: blit text surface
+    screen.blit(text_rect1, (200,20)) #TEXT STEP 3: blit text surface
     
     #basic animations: animating each surface just means changing the position slightly on each frame. use screen.blit that uses a variable that continuously changes the position, recall that our surfaces are constantly being 'updated' at 60 fps. When it's static on the screen, just means that the position is not being altered from frame to frame
     ube_rect.left -= 3 #get ube to move to the left
@@ -62,16 +73,31 @@ while True:
         ube_rect.left = 800 #if statement to place ube surface back to the right if it moves off screen
     screen.blit(ube_surface, ube_rect)
     
-    #check if theo rectangle collides with ube rectangle
-    '''
+    
+    # pygame.mouse 
+    ''' # check if theo rectangle collides with ube rectangle
     if theo_rect.colliderect(ube_rect): #.colliderect() method checks if 2 rectangles overlap/collide, returns boolean
         print("Theo got the ube!")
         #reset ube position
         ube_rect.left = 800 '''
     
+    """ # check if mouse is on theo
     if theo_rect.collidepoint(pygame.mouse.get_pos()): #get_pos() method returns current mouse position as tuple (x,y), collidepoint() method checks if point collides with rectangle, returns boolean
         print("Your mouse is on Theo!" , str(n)) #testing variable n to see how many times this prints
         n+=1
+    """
+
+    '''# get_pressed() method returns list of booleans representing state of every key on keyboard, so we can check if specific key is being pressed
+    mouse_pos = pygame.mouse.get_pos() #get current mouse position as tuple (x,y)
+    mouse_buttons = pygame.mouse.get_pressed() #get state of mouse buttons as tuple of booleans (left, middle, right)
+    if theo_rect.collidepoint(mouse_pos): #check if mouse is on theo
+        print(pygame.mouse.get_pressed())
+        if mouse_buttons[0]: #check if left mouse button is being pressed (index 0 of mouse_buttons tuple)
+            print("You left-clicked on Theo!")
+        if mouse_buttons[1]: # check if middle mouse button is being pressed (index 1 of mouse_buttons tuple)
+            print("You middle-clicked on Theo!")
+        if mouse_buttons[2]: # check if right mouse button is being pressed (index 2 of mouse_buttons tuple)
+            print("You right-clicked on Theo!") '''
 
     
 
@@ -79,4 +105,4 @@ while True:
     pygame.display.update() #continuously update display service to player
     clock.tick(60) #set max frame rate: 60 integer tells pygame that the while true loop should not run faster than 60 fps...don't really have to worry about min frame rate for basic 2d game in pygame
 
-#left off 1:08 pygame.mouse
+# resume around 1:15:00 in video tutorial
