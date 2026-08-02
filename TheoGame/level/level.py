@@ -8,6 +8,7 @@ from settings import (
     PLATFORM_SHADOW,
 )
 from entities.player import Player
+from entities.collectible import Collectible
 
 
 class Level:
@@ -18,10 +19,20 @@ class Level:
         ).convert_alpha()
         self.platforms = [pygame.Rect(*platform) for platform in level_data["platforms"]]
         self.player = Player(level_data["spawn"])
+        self.collectibles = pygame.sprite.Group()
+        self.total_bones = len(level_data.get("bones", []))
+
+        for pos in level_data.get("bones", []):
+            self.collectibles.add(Collectible(pos))
 
     def update(self, keys):
         self.player.handle_input(keys)
         self.player.update(self.platforms)
+
+        for collectible in pygame.sprite.spritecollide(
+            self.player, self.collectibles, dokill=True
+        ):
+            collectible.on_collect(self.player)
 
     def draw(self, surface):
         surface.blit(self.background, (0, 0))
@@ -29,6 +40,7 @@ class Level:
         for platform in self.platforms:
             self._draw_platform(surface, platform)
 
+        self.collectibles.draw(surface)
         surface.blit(self.player.image, self.player.rect)
 
     def _draw_platform(self, surface, platform):

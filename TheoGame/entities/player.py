@@ -14,6 +14,10 @@ class Player(pygame.sprite.Sprite):
         self.velocity = pygame.Vector2(0, 0)
         self.on_ground = False
         self.facing = "right"
+        self.bones_collected = 0
+
+    def collect_bone(self, value=1):
+        self.bones_collected += value
 
     def handle_input(self, keys):
         self.velocity.x = 0
