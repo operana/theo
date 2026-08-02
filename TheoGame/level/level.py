@@ -9,6 +9,7 @@ from settings import (
 )
 from entities.player import Player
 from entities.collectible import Collectible
+from entities.goal import Goal
 
 
 class Level:
@@ -21,11 +22,16 @@ class Level:
         self.player = Player(level_data["spawn"])
         self.collectibles = pygame.sprite.Group()
         self.total_bones = len(level_data.get("bones", []))
+        self.goal = Goal(level_data["goal"])
+        self.complete = False
 
         for pos in level_data.get("bones", []):
             self.collectibles.add(Collectible(pos))
 
     def update(self, keys):
+        if self.complete:
+            return
+
         self.player.handle_input(keys)
         self.player.update(self.platforms)
 
@@ -34,6 +40,9 @@ class Level:
         ):
             collectible.on_collect(self.player)
 
+        if self.goal.is_reached(self.player):
+            self.complete = True
+
     def draw(self, surface):
         surface.blit(self.background, (0, 0))
 
@@ -41,6 +50,7 @@ class Level:
             self._draw_platform(surface, platform)
 
         self.collectibles.draw(surface)
+        surface.blit(self.goal.image, self.goal.rect)
         surface.blit(self.player.image, self.player.rect)
 
     def _draw_platform(self, surface, platform):
