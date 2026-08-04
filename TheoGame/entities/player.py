@@ -1,6 +1,6 @@
 import pygame
 
-from data.hats import HATS
+from entities.hat_assets import compose_player_with_hat, get_player_hat
 from settings import (
     GRAVITY,
     JUMP_STRENGTH,
@@ -29,6 +29,7 @@ class Player(pygame.sprite.Sprite):
         self.spawn_pos = pos
         self.lives = 3
         self.invincible_until = 0
+        self._update_facing()
 
     def collision_rect(self):
         width = max(1, int(self.rect.width * PLAYER_HITBOX_WIDTH_RATIO))
@@ -124,24 +125,18 @@ class Player(pygame.sprite.Sprite):
             self.rect.right = level_width
 
     def _update_facing(self):
+        feet = self.rect.midbottom
+
         if self.facing == "left":
             base = pygame.transform.flip(self.base_image, True, False)
         else:
             base = self.base_image
 
-        if self.equipped_hat != "none" and self.equipped_hat in HATS:
-            self.image = base.copy()
-            color = HATS[self.equipped_hat]["color"]
-            if color:
-                center_x = self.image.get_width() // 2
-                pygame.draw.polygon(
-                    self.image,
-                    color,
-                    [
-                        (center_x, 2),
-                        (center_x - 12, 18),
-                        (center_x + 12, 18),
-                    ],
-                )
+        hat_surface = get_player_hat(self.equipped_hat, self.facing)
+        if hat_surface:
+            self.image = compose_player_with_hat(base, hat_surface, self.facing)
         else:
             self.image = base
+
+        self.rect = self.image.get_rect()
+        self.rect.midbottom = feet

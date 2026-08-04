@@ -2,6 +2,7 @@ import pygame
 
 from settings import GRAPHICS_PATH, SCREEN_WIDTH, SCREEN_HEIGHT, UI_FONT_SIZE
 from data.hats import HATS, SHOP_HATS
+from entities.hat_assets import get_shop_hat
 from states.base_state import State
 from ui.mixed_text import get_pixel_font, get_ui_font, blit_mixed_line
 from ui.text_glow import draw_glow_text
@@ -118,16 +119,11 @@ class ShopState(State):
                 color,
             )
 
-            hat_color = HATS[hat_id]["color"]
-            if hat_color:
-                pygame.draw.polygon(
-                    surface,
-                    hat_color,
-                    [
-                        (SCREEN_WIDTH // 2 + 180, y + 5),
-                        (SCREEN_WIDTH // 2 + 200, y - 10),
-                        (SCREEN_WIDTH // 2 + 220, y + 5),
-                    ],
+            hat_surface = get_shop_hat(hat_id)
+            if hat_surface:
+                surface.blit(
+                    hat_surface,
+                    hat_surface.get_rect(center=(SCREEN_WIDTH // 2 + 200, y)),
                 )
 
         hint = self.small_font.render(
