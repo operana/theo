@@ -10,18 +10,32 @@ class LevelCompleteScreen:
         self.title_font = get_pixel_font(title_size)
         self.ui_font = get_ui_font(UI_FONT_SIZE)
 
-    def draw(self, surface, level_name, bones_collected, total_bones, banked_bones):
+    def draw(
+        self,
+        surface,
+        level_name,
+        bones_collected,
+        total_bones,
+        banked_bones,
+        has_next_level=False,
+        act_complete=False,
+    ):
         overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
         overlay.fill((20, 10, 5, 160))
         surface.blit(overlay, (0, 0))
 
-        title = self.title_font.render("Level Complete!", False, "#FFCCCC")
-        title_rect = title.get_rect(center=(SCREEN_WIDTH // 2, 110))
+        if act_complete:
+            title_text = "Act 1 Complete!"
+        else:
+            title_text = "Level Complete!"
+
+        title = self.title_font.render(title_text, False, "#FFCCCC")
+        title_rect = title.get_rect(center=(SCREEN_WIDTH // 2, 100))
         pygame.draw.rect(surface, "#4A2C1A", title_rect.inflate(24, 12), border_radius=6)
         surface.blit(title, title_rect)
 
         name = self.pixel_font.render(level_name, False, "#F2C896")
-        surface.blit(name, name.get_rect(center=(SCREEN_WIDTH // 2, 165)))
+        surface.blit(name, name.get_rect(center=(SCREEN_WIDTH // 2, 155)))
 
         blit_mixed_line(
             surface,
@@ -29,7 +43,7 @@ class LevelCompleteScreen:
                 ("Level bones: ", "pixel"),
                 (f"{bones_collected}/{total_bones}", "ui"),
             ],
-            (SCREEN_WIDTH // 2, 210),
+            (SCREEN_WIDTH // 2, 200),
             self.pixel_font,
             self.ui_font,
             "#FFCCCC",
@@ -42,11 +56,18 @@ class LevelCompleteScreen:
                 (str(banked_bones), "ui"),
                 (" bones", "pixel"),
             ],
-            (SCREEN_WIDTH // 2, 245),
+            (SCREEN_WIDTH // 2, 235),
             self.pixel_font,
             self.ui_font,
             "#F2C896",
         )
 
-        hint = self.pixel_font.render("S shop  |  R replay", False, "#F2C896")
-        surface.blit(hint, hint.get_rect(center=(SCREEN_WIDTH // 2, 310)))
+        if act_complete:
+            hint_text = "S shop  |  R replay  |  SPACE menu"
+        elif has_next_level:
+            hint_text = "N next  |  S shop  |  R replay"
+        else:
+            hint_text = "S shop  |  R replay"
+
+        hint = self.pixel_font.render(hint_text, False, "#F2C896")
+        surface.blit(hint, hint.get_rect(center=(SCREEN_WIDTH // 2, 300)))

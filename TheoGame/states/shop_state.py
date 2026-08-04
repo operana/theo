@@ -8,6 +8,10 @@ from ui.text_glow import draw_glow_text
 
 
 class ShopState(State):
+    def __init__(self, game, level_id="1-1"):
+        super().__init__(game)
+        self.level_id = level_id
+
     def enter(self):
         self.background = pygame.image.load(
             GRAPHICS_PATH / "backgrounds" / "cafe.png"
@@ -26,7 +30,7 @@ class ShopState(State):
         if event.key == pygame.K_SPACE:
             from states.play_state import PlayState
 
-            self.game.change_state(PlayState(self.game))
+            self.game.change_state(PlayState(self.game, level_id=self.level_id))
             return
 
         hat_keys = {
