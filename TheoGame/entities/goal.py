@@ -1,23 +1,19 @@
 import pygame
 
+from settings import GRAPHICS_PATH
 
-def _make_goal_surface():
-    surface = pygame.Surface((44, 52), pygame.SRCALPHA)
-    frame = "#C9A227"
-    door = "#F5E6C8"
-    handle = "#4A2C1A"
-
-    pygame.draw.rect(surface, frame, (4, 0, 36, 52), border_radius=4)
-    pygame.draw.rect(surface, door, (8, 4, 28, 44), border_radius=3)
-    pygame.draw.circle(surface, handle, (30, 28), 3)
-    pygame.draw.arc(surface, frame, (14, 4, 16, 16), 3.14, 0, 2)
-    return surface
+GOAL_DISPLAY_WIDTH = 100
 
 
 class Goal(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__()
-        self.image = _make_goal_surface()
+        image = pygame.image.load(
+            GRAPHICS_PATH / "items" / "doorSmall.png"
+        ).convert_alpha()
+        scale = GOAL_DISPLAY_WIDTH / image.get_width()
+        size = (GOAL_DISPLAY_WIDTH, int(image.get_height() * scale))
+        self.image = pygame.transform.scale(image, size)
         self.rect = self.image.get_rect(midbottom=pos)
 
     def is_reached(self, player):

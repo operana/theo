@@ -1,6 +1,6 @@
 import pygame
 
-from settings import GRAVITY, JUMP_STRENGTH, PLAYER_SPEED, GRAPHICS_PATH
+from settings import GRAVITY, JUMP_STRENGTH, PLAYER_SPEED, GRAPHICS_PATH, SCREEN_WIDTH
 
 
 class Player(pygame.sprite.Sprite):
@@ -45,6 +45,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.y += self.velocity.y
         self.on_ground = False
         self._resolve_vertical(platforms)
+        self._clamp_to_screen()
 
         self._update_facing()
 
@@ -66,6 +67,12 @@ class Player(pygame.sprite.Sprite):
                 elif self.velocity.y < 0:
                     self.rect.top = platform.bottom
                     self.velocity.y = 0
+
+    def _clamp_to_screen(self):
+        if self.rect.left < 0:
+            self.rect.left = 0
+        if self.rect.right > SCREEN_WIDTH:
+            self.rect.right = SCREEN_WIDTH
 
     def _update_facing(self):
         if self.facing == "left":
