@@ -17,9 +17,34 @@ class Player(pygame.sprite.Sprite):
         self.facing = "right"
         self.bones_collected = 0
         self.equipped_hat = equipped_hat
+        self.spawn_pos = pos
+        self.lives = 3
+        self.invincible_until = 0
 
     def collect_bone(self, value=1):
         self.bones_collected += value
+
+    def is_invincible(self):
+        return pygame.time.get_ticks() < self.invincible_until
+
+    def take_damage(self):
+        if self.is_invincible():
+            return False
+
+        self.lives -= 1
+        self.respawn()
+        self.invincible_until = pygame.time.get_ticks() + 2000
+        return True
+
+    def respawn(self):
+        self.rect.midbottom = self.spawn_pos
+        self.velocity = pygame.Vector2(0, 0)
+        self.on_ground = False
+
+    def reset_lives(self):
+        self.lives = 3
+        self.invincible_until = 0
+        self.respawn()
 
     def handle_input(self, keys):
         self.velocity.x = 0

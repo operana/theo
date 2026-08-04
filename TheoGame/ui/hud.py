@@ -9,12 +9,14 @@ class HUD:
         self.pixel_font = get_pixel_font(pixel_size)
         self.ui_font = get_ui_font(UI_FONT_SIZE)
 
-    def draw(self, surface, bone_count, total_bones, banked_bones=0):
+    def draw(self, surface, bone_count, total_bones, banked_bones=0, lives=3):
         parts = [
             ("Bones: ", "pixel"),
             (f"{bone_count}/{total_bones}", "ui"),
             ("  Bank: ", "pixel"),
             (str(banked_bones), "ui"),
+            ("  Lives: ", "pixel"),
+            (str(lives), "ui"),
         ]
         width, height = mixed_line_size(parts, self.pixel_font, self.ui_font)
         box = pygame.Rect(0, 0, width + 16, height + 8)

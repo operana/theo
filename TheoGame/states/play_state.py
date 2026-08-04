@@ -72,4 +72,5 @@ class PlayState(State):
                 self.level.player.bones_collected,
                 self.level.total_bones,
                 self.game.save_data.total_bones,
+                self.level.player.lives,
             )
