@@ -4,6 +4,7 @@ import pygame
 
 from birthday_surprise.config import ENABLED
 from birthday_surprise.hallway_state import HallwayState
+from birthday_surprise.message_state import MessageState
 
 __all__ = [
     "ENABLED",
@@ -36,6 +37,10 @@ def handle_menu_key(game, key):
 
     if key == pygame.K_e:
         game.change_state(HallwayState(game))
+        return True
+
+    if key == pygame.K_d:
+        game.change_state(MessageState(game))
         return True
 
     return False

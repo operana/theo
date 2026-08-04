@@ -4,6 +4,8 @@ ENABLED = True
 
 # 4-digit passcode (e.g. MMDD birthday)
 PASSCODE = "2324"
+PASSCODE_HINT = "PS5 and PC"
+PASSCODE_HINT_AFTER_ATTEMPTS = 3
 
 MESSAGE_TITLE = "Happy Birthday TJ!"
 MESSAGE_LINES = [

@@ -4,7 +4,11 @@ import pygame
 
 from settings import GRAPHICS_PATH, SCREEN_WIDTH, SCREEN_HEIGHT, FONT_PATH
 from states.base_state import State
-from birthday_surprise.config import PASSCODE
+from birthday_surprise.config import (
+    PASSCODE,
+    PASSCODE_HINT,
+    PASSCODE_HINT_AFTER_ATTEMPTS,
+)
 from birthday_surprise.message_state import MessageState
 from ui.text_glow import draw_glow_text
 
@@ -33,8 +37,10 @@ class PasscodeState(State):
         self.digit_font = pygame.font.Font(str(FONT_PATH), 40)
         self.placeholder_font = pygame.font.Font(str(FONT_PATH), 32)
         self.hint_font = pygame.font.Font(str(FONT_PATH), 18)
+        self.passcode_hint_font = pygame.font.Font(str(FONT_PATH), 28)
 
         self.digits = ""
+        self.wrong_attempts = 0
         self.wrong_until = 0
         self.last_input_at = 0
 
@@ -72,6 +78,7 @@ class PasscodeState(State):
         if self.digits == PASSCODE:
             self.game.change_state(MessageState(self.game))
         else:
+            self.wrong_attempts += 1
             self.wrong_until = pygame.time.get_ticks() + WRONG_CODE_MS
             self.digits = ""
 
@@ -143,6 +150,12 @@ class PasscodeState(State):
         if pygame.time.get_ticks() < self.wrong_until:
             wrong = self.hint_font.render("Wrong passcode — try again", False, "#FF6666")
             surface.blit(wrong, wrong.get_rect(center=(SCREEN_WIDTH // 2, 340)))
+
+        if self.wrong_attempts >= PASSCODE_HINT_AFTER_ATTEMPTS:
+            passcode_hint = self.passcode_hint_font.render(
+                f"Hint: {PASSCODE_HINT}", False, "#FFD700"
+            )
+            surface.blit(passcode_hint, passcode_hint.get_rect(center=(SCREEN_WIDTH // 2, 358)))
 
         hint = self.hint_font.render(
             "0-9 type code  |  ENTER submit  |  ESC menu", False, "#F2C896"

@@ -106,7 +106,7 @@ class HallwayState(State):
         self.level = HallwayLevel(self.game.save_data)
         self.hint_font = get_pixel_font(18)
         self.hint_surface = self.hint_font.render(
-            "← → move   space jump   X chomp", False, "#F2C896"
+            "← → move   space jump   F fight", False, "#F2C896"
         )
         self.chomp_pressed = False
 
@@ -118,7 +118,7 @@ class HallwayState(State):
             from states.menu_state import MenuState
 
             self.game.change_state(MenuState(self.game))
-        elif event.key == pygame.K_x:
+        elif event.key == pygame.K_f:
             self.chomp_pressed = True
 
     def update(self, dt):
