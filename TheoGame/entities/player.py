@@ -1,7 +1,7 @@
 import pygame
 
 from data.hats import HATS
-from settings import GRAVITY, JUMP_STRENGTH, PLAYER_SPEED, GRAPHICS_PATH, SCREEN_WIDTH
+from settings import GRAVITY, JUMP_STRENGTH, PLAYER_SPEED, GRAPHICS_PATH
 
 
 class Player(pygame.sprite.Sprite):
@@ -63,7 +63,7 @@ class Player(pygame.sprite.Sprite):
         if self.velocity.y > 15:
             self.velocity.y = 15
 
-    def update(self, platforms):
+    def update(self, platforms, level_width):
         self.apply_gravity()
 
         self.rect.x += self.velocity.x
@@ -72,7 +72,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.y += self.velocity.y
         self.on_ground = False
         self._resolve_vertical(platforms)
-        self._clamp_to_screen()
+        self._clamp_to_level(level_width)
 
         self._update_facing()
 
@@ -95,11 +95,11 @@ class Player(pygame.sprite.Sprite):
                     self.rect.top = platform.bottom
                     self.velocity.y = 0
 
-    def _clamp_to_screen(self):
+    def _clamp_to_level(self, level_width):
         if self.rect.left < 0:
             self.rect.left = 0
-        if self.rect.right > SCREEN_WIDTH:
-            self.rect.right = SCREEN_WIDTH
+        if self.rect.right > level_width:
+            self.rect.right = level_width
 
     def _update_facing(self):
         if self.facing == "left":

@@ -1,6 +1,7 @@
 import pygame
 
 from settings import (
+    SCREEN_WIDTH,
     GRAPHICS_PATH,
     PLATFORM_COLOR,
     PLATFORM_BORDER,
@@ -11,6 +12,7 @@ from entities.player import Player
 from entities.collectible import Collectible
 from entities.goal import Goal
 from entities.enemy import Enemy
+from systems.camera import Camera
 
 
 class Level:
@@ -21,6 +23,8 @@ class Level:
             GRAPHICS_PATH / level_data["background"]
         ).convert_alpha()
         self.platforms = [pygame.Rect(*platform) for platform in level_data["platforms"]]
+        self.width = level_data.get("width", max(platform.right for platform in self.platforms))
+        self.camera = Camera(self.width)
         equipped_hat = save_data.equipped_hat if save_data else "none"
         self.player = Player(level_data["spawn"], equipped_hat=equipped_hat)
         self.collectibles = pygame.sprite.Group()
@@ -48,8 +52,9 @@ class Level:
             return
 
         self.player.handle_input(keys)
-        self.player.update(self.platforms)
+        self.player.update(self.platforms, self.width)
         self.enemies.update(self.platforms)
+        self.camera.update(self.player.rect)
 
         for collectible in pygame.sprite.spritecollide(
             self.player, self.collectibles, dokill=True
@@ -73,17 +78,29 @@ class Level:
         self.player.bones_collected = 0
 
     def draw(self, surface):
-        surface.blit(self.background, (0, 0))
+        self._draw_background(surface)
 
         for platform in self.platforms:
-            self._draw_platform(surface, platform)
+            self._draw_platform(surface, self.camera.apply(platform))
 
-        self.collectibles.draw(surface)
-        self.enemies.draw(surface)
-        surface.blit(self.goal.image, self.goal.rect)
+        for collectible in self.collectibles:
+            surface.blit(collectible.image, self.camera.apply(collectible.rect))
+
+        for enemy in self.enemies:
+            surface.blit(enemy.image, self.camera.apply(enemy.rect))
+
+        surface.blit(self.goal.image, self.camera.apply(self.goal.rect))
 
         if not self.player.is_invincible() or (pygame.time.get_ticks() // 150) % 2 == 0:
-            surface.blit(self.player.image, self.player.rect)
+            surface.blit(self.player.image, self.camera.apply(self.player.rect))
+
+    def _draw_background(self, surface):
+        background_width = self.background.get_width()
+        start_x = -(int(self.camera.offset.x) % background_width)
+        x = start_x
+        while x < SCREEN_WIDTH:
+            surface.blit(self.background, (x, 0))
+            x += background_width
 
     def _draw_platform(self, surface, platform):
         pygame.draw.rect(surface, PLATFORM_SHADOW, platform.move(0, 3), border_radius=3)
