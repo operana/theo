@@ -1,5 +1,7 @@
 # TEMPORARY birthday feature — delete with the birthday_surprise/ folder.
 
+import random
+
 import pygame
 
 from settings import (
@@ -19,6 +21,70 @@ from ui.text_glow import draw_glow_text
 
 FLOOR_Y = 350
 TEXT_CEILING_Y = 200
+
+CONFETTI_COLORS = ["#FFCCCC", "#F2C896", "#FFD700", "#7BC96F", "#FF6666", "#D4956A"]
+
+
+class ConfettiParticle:
+    def __init__(self, spawn_top=True):
+        self.x = random.uniform(0, SCREEN_WIDTH)
+        if spawn_top:
+            self.y = random.uniform(-30, SCREEN_HEIGHT * 0.4)
+        else:
+            self.y = random.uniform(-40, -5)
+        self.vx = random.uniform(-1.2, 1.2)
+        self.vy = random.uniform(1.0, 3.5)
+        self.color = random.choice(CONFETTI_COLORS)
+        self.size = random.randint(5, 9)
+        self.spin = random.uniform(-3, 3)
+        self.rotation = random.uniform(0, 360)
+        self._surface = pygame.Surface((self.size, self.size * 2), pygame.SRCALPHA)
+        self._surface.fill(self.color)
+        self._build_rotated()
+
+    def _build_rotated(self):
+        self.image = pygame.transform.rotate(self._surface, self.rotation)
+
+    def update(self, dt):
+        scale = dt / 16.0
+        self.vy += 0.06 * scale
+        self.x += self.vx * scale
+        self.y += self.vy * scale
+        self.rotation = (self.rotation + self.spin * scale) % 360
+        self._build_rotated()
+
+    def off_screen(self):
+        return self.y > SCREEN_HEIGHT + 20 or self.x < -20 or self.x > SCREEN_WIDTH + 20
+
+    def draw(self, surface):
+        rect = self.image.get_rect(center=(int(self.x), int(self.y)))
+        surface.blit(self.image, rect)
+
+
+class Confetti:
+    def __init__(self, particle_count=70):
+        self.particles = [ConfettiParticle(spawn_top=True) for _ in range(particle_count)]
+        self.spawn_cooldown = 0
+
+    def update(self, dt):
+        self.spawn_cooldown -= dt
+        for particle in self.particles:
+            particle.update(dt)
+
+        for index, particle in enumerate(self.particles):
+            if particle.off_screen():
+                self.particles[index] = ConfettiParticle(spawn_top=False)
+
+        if self.spawn_cooldown <= 0:
+            self.particles.append(ConfettiParticle(spawn_top=False))
+            self.spawn_cooldown = 120
+
+        if len(self.particles) > 90:
+            self.particles.pop(0)
+
+    def draw(self, surface):
+        for particle in self.particles:
+            particle.draw(surface)
 
 
 class SecretRoom:
@@ -86,6 +152,7 @@ class MessageState(State):
         self.move_hint = self.hint_font.render(
             "← → move   space jump", False, "#F2C896"
         )
+        self.confetti = Confetti()
 
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
@@ -96,9 +163,11 @@ class MessageState(State):
     def update(self, dt):
         keys = pygame.key.get_pressed()
         self.room.update(keys)
+        self.confetti.update(dt)
 
     def draw(self, surface):
         self.room.draw_room(surface, self.background)
+        self.confetti.draw(surface)
 
         draw_glow_text(
             surface,

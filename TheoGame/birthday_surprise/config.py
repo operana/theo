@@ -5,7 +5,7 @@ ENABLED = True
 # 4-digit passcode (e.g. MMDD birthday)
 PASSCODE = "2324"
 
-MESSAGE_TITLE = "Happy Birthday!"
+MESSAGE_TITLE = "Happy Birthday TJ!"
 MESSAGE_LINES = [
     "Theo found the secret room behind the cafe...",
     "It reveals a secret message...",

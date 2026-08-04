@@ -2,6 +2,12 @@ import math
 
 import pygame
 
+# BIRTHDAY TEMP: delete this try/except block after the birthday (keep other imports).
+try:
+    from birthday_surprise import hooks as birthday
+except ImportError:
+    birthday = None
+
 from settings import FONT_PATH, GRAPHICS_PATH, SCREEN_WIDTH
 from states.base_state import State
 from states.play_state import PlayState
@@ -55,8 +61,12 @@ class MenuState(State):
         self.elapsed = 0
 
     def handle_event(self, event):
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-            self.game.change_state(PlayState(self.game, new_level=True, level_id="1-1"))
+        if event.type == pygame.KEYDOWN:
+            # BIRTHDAY TEMP: delete this if block after the birthday.
+            if birthday and birthday.handle_menu_key(self.game, event.key):
+                return
+            if event.key == pygame.K_SPACE:
+                self.game.change_state(PlayState(self.game, new_level=True, level_id="1-1"))
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             self.game.change_state(PlayState(self.game, new_level=True, level_id="1-1"))
 

@@ -14,10 +14,13 @@ from entities.goal import Goal
 from systems.camera import Camera
 from states.base_state import State
 from birthday_surprise.passcode_state import PasscodeState
+from birthday_surprise.hallway_combat import HallwayCombat
 from ui.mixed_text import get_pixel_font
 
 HALLWAY_WIDTH = 1400
 FLOOR_Y = 350
+ENEMY_X = 950
+GOAL_X = HALLWAY_WIDTH - 80
 
 
 class HallwayLevel:
@@ -25,19 +28,29 @@ class HallwayLevel:
         equipped_hat = save_data.equipped_hat if save_data else "none"
         self.player = Player((100, FLOOR_Y), equipped_hat=equipped_hat)
         self.platforms = [pygame.Rect(0, FLOOR_Y, HALLWAY_WIDTH, 50)]
-        self.goal = Goal((HALLWAY_WIDTH - 80, FLOOR_Y))
+        self.goal = Goal((GOAL_X, FLOOR_Y))
         self.camera = Camera(HALLWAY_WIDTH)
+        self.combat = HallwayCombat(
+            self.player,
+            self.platforms,
+            HALLWAY_WIDTH,
+            (ENEMY_X, FLOOR_Y),
+        )
         self.reached_goal = False
 
-    def update(self, keys):
+    def update(self, keys, chomp_pressed=False):
         if self.reached_goal:
             return
+
+        if chomp_pressed:
+            self.combat.try_chomp()
 
         self.player.handle_input(keys)
         self.player.update(self.platforms, HALLWAY_WIDTH)
         self.camera.update(self.player.rect)
+        self.combat.update(self.camera)
 
-        if self.goal.is_reached(self.player):
+        if self.combat.door_unlocked and self.goal.is_reached(self.player):
             self.reached_goal = True
 
     def draw(self, surface):
@@ -46,8 +59,17 @@ class HallwayLevel:
         floor = self.camera.apply(self.platforms[0])
         self._draw_floor(surface, floor)
 
-        surface.blit(self.goal.image, self.camera.apply(self.goal.rect))
-        surface.blit(self.player.image, self.camera.apply(self.player.rect))
+        self.combat.draw(surface, self.camera)
+
+        if self.combat.door_unlocked:
+            surface.blit(self.goal.image, self.camera.apply(self.goal.rect))
+        else:
+            locked = self.goal.image.copy()
+            locked.fill((80, 80, 80, 120), special_flags=pygame.BLEND_RGBA_MULT)
+            surface.blit(locked, self.camera.apply(self.goal.rect))
+
+        if not self.player.is_invincible() or (pygame.time.get_ticks() // 150) % 2 == 0:
+            surface.blit(self.player.image, self.camera.apply(self.player.rect))
 
     def _draw_hallway(self, surface):
         surface.fill("#1A0F08")
@@ -84,18 +106,25 @@ class HallwayState(State):
         self.level = HallwayLevel(self.game.save_data)
         self.hint_font = get_pixel_font(18)
         self.hint_surface = self.hint_font.render(
-            "Walk to the door...", False, "#F2C896"
+            "← → move   space jump   X chomp", False, "#F2C896"
         )
+        self.chomp_pressed = False
 
     def handle_event(self, event):
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+        if event.type != pygame.KEYDOWN:
+            return
+
+        if event.key == pygame.K_ESCAPE:
             from states.menu_state import MenuState
 
             self.game.change_state(MenuState(self.game))
+        elif event.key == pygame.K_x:
+            self.chomp_pressed = True
 
     def update(self, dt):
         keys = pygame.key.get_pressed()
-        self.level.update(keys)
+        self.level.update(keys, chomp_pressed=self.chomp_pressed)
+        self.chomp_pressed = False
 
         if self.level.reached_goal:
             self.game.change_state(PasscodeState(self.game))
@@ -103,3 +132,4 @@ class HallwayState(State):
     def draw(self, surface):
         self.level.draw(surface)
         surface.blit(self.hint_surface, (10, 10))
+        self.level.combat.draw_overlays(surface, self.hint_font)

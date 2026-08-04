@@ -5,7 +5,12 @@ import pygame
 from birthday_surprise.config import ENABLED
 from birthday_surprise.hallway_state import HallwayState
 
-__all__ = ["ENABLED", "act_complete_extra_hint", "handle_act_complete_key"]
+__all__ = [
+    "ENABLED",
+    "act_complete_extra_hint",
+    "handle_act_complete_key",
+    "handle_menu_key",
+]
 
 
 def act_complete_extra_hint():
@@ -19,6 +24,17 @@ def handle_act_complete_key(game, key):
         return False
 
     if key == pygame.K_n:
+        game.change_state(HallwayState(game))
+        return True
+
+    return False
+
+
+def handle_menu_key(game, key):
+    if not ENABLED:
+        return False
+
+    if key == pygame.K_e:
         game.change_state(HallwayState(game))
         return True
 
