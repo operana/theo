@@ -19,6 +19,7 @@ class LevelCompleteScreen:
         banked_bones,
         has_next_level=False,
         act_complete=False,
+        extra_hint="",  # BIRTHDAY TEMP: remove this parameter after the birthday.
     ):
         overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
         overlay.fill((20, 10, 5, 160))
@@ -63,7 +64,8 @@ class LevelCompleteScreen:
         )
 
         if act_complete:
-            hint_text = "S shop  |  R replay  |  SPACE menu"
+            # BIRTHDAY TEMP: remove extra_hint from hint_text after the birthday.
+            hint_text = f"S shop  |  R replay{extra_hint}  |  SPACE menu"
         elif has_next_level:
             hint_text = "N next  |  S shop  |  R replay"
         else:

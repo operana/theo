@@ -1,5 +1,11 @@
 import pygame
 
+# BIRTHDAY TEMP: delete this try/except block after the birthday (keep other imports).
+try:
+    from birthday_surprise import hooks as birthday
+except ImportError:
+    birthday = None
+
 from level import Level, LEVELS, ACT_1_LEVELS
 from states.base_state import State
 from states.shop_state import ShopState
@@ -55,6 +61,11 @@ class PlayState(State):
             elif event.key == pygame.K_n and self._next_level_id():
                 self.level_id = self._next_level_id()
                 self._start_level()
+            # BIRTHDAY TEMP: delete this elif block after the birthday (N → hallway).
+            elif birthday and self._is_act_complete() and birthday.handle_act_complete_key(
+                self.game, event.key
+            ):
+                return
             elif event.key == pygame.K_SPACE and self._is_act_complete():
                 from states.menu_state import MenuState
 
@@ -74,6 +85,11 @@ class PlayState(State):
         self.level.draw(surface)
 
         if self.level.complete:
+            # BIRTHDAY TEMP: delete extra_hint lines after the birthday.
+            extra_hint = ""
+            if birthday and self._is_act_complete():
+                extra_hint = birthday.act_complete_extra_hint()
+
             self.level_complete.draw(
                 surface,
                 self.level.name,
@@ -82,6 +98,7 @@ class PlayState(State):
                 self.game.save_data.total_bones,
                 has_next_level=self._next_level_id() is not None,
                 act_complete=self._is_act_complete(),
+                extra_hint=extra_hint,
             )
         else:
             surface.blit(self.hint_surface, (10, 10))
