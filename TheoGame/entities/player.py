@@ -1,10 +1,11 @@
 import pygame
 
+from data.hats import HATS
 from settings import GRAVITY, JUMP_STRENGTH, PLAYER_SPEED, GRAPHICS_PATH, SCREEN_WIDTH
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos):
+    def __init__(self, pos, equipped_hat="none"):
         super().__init__()
         self.base_image = pygame.image.load(
             GRAPHICS_PATH / "player" / "TheoSpriteSmall.png"
@@ -15,6 +16,7 @@ class Player(pygame.sprite.Sprite):
         self.on_ground = False
         self.facing = "right"
         self.bones_collected = 0
+        self.equipped_hat = equipped_hat
 
     def collect_bone(self, value=1):
         self.bones_collected += value
@@ -76,6 +78,23 @@ class Player(pygame.sprite.Sprite):
 
     def _update_facing(self):
         if self.facing == "left":
-            self.image = pygame.transform.flip(self.base_image, True, False)
+            base = pygame.transform.flip(self.base_image, True, False)
         else:
-            self.image = self.base_image
+            base = self.base_image
+
+        if self.equipped_hat != "none" and self.equipped_hat in HATS:
+            self.image = base.copy()
+            color = HATS[self.equipped_hat]["color"]
+            if color:
+                center_x = self.image.get_width() // 2
+                pygame.draw.polygon(
+                    self.image,
+                    color,
+                    [
+                        (center_x, 2),
+                        (center_x - 12, 18),
+                        (center_x + 12, 18),
+                    ],
+                )
+        else:
+            self.image = base

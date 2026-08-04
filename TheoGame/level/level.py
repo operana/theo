@@ -13,13 +13,14 @@ from entities.goal import Goal
 
 
 class Level:
-    def __init__(self, level_data):
+    def __init__(self, level_data, save_data=None):
         self.name = level_data["name"]
         self.background = pygame.image.load(
             GRAPHICS_PATH / level_data["background"]
         ).convert_alpha()
         self.platforms = [pygame.Rect(*platform) for platform in level_data["platforms"]]
-        self.player = Player(level_data["spawn"])
+        equipped_hat = save_data.equipped_hat if save_data else "none"
+        self.player = Player(level_data["spawn"], equipped_hat=equipped_hat)
         self.collectibles = pygame.sprite.Group()
         self.total_bones = len(level_data.get("bones", []))
         self.goal = Goal(level_data["goal"])

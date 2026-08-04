@@ -1,6 +1,7 @@
 import pygame
 
 from settings import SCREEN_WIDTH, SCREEN_HEIGHT, FPS
+from data import SaveData
 from states import MenuState
 
 
@@ -11,6 +12,7 @@ class Game:
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.clock = pygame.time.Clock()
         self.running = True
+        self.save_data = SaveData.load()
         self.state = MenuState(self)
         self.state.enter()
 

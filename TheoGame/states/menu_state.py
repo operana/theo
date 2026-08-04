@@ -56,9 +56,9 @@ class MenuState(State):
 
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-            self.game.change_state(PlayState(self.game))
+            self.game.change_state(PlayState(self.game, new_level=True))
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            self.game.change_state(PlayState(self.game))
+            self.game.change_state(PlayState(self.game, new_level=True))
 
     def update(self, dt):
         self.elapsed += dt

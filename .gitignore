@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Game save data (local progress)
+TheoGame/save.json
+
+# Word docs and temp lock files
+*.docx
+~$*
