@@ -56,10 +56,10 @@ class Level:
         self.enemies.update(self.platforms)
         self.camera.update(self.player.rect)
 
-        for collectible in pygame.sprite.spritecollide(
-            self.player, self.collectibles, dokill=True
-        ):
-            collectible.on_collect(self.player)
+        for collectible in list(self.collectibles):
+            if self.player.pickup_rect().colliderect(collectible.rect):
+                collectible.on_collect(self.player)
+                collectible.kill()
 
         if pygame.sprite.spritecollide(self.player, self.enemies, dokill=False):
             if self.player.take_damage():

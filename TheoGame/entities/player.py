@@ -1,7 +1,16 @@
 import pygame
 
 from data.hats import HATS
-from settings import GRAVITY, JUMP_STRENGTH, PLAYER_SPEED, GRAPHICS_PATH
+from settings import (
+    GRAVITY,
+    JUMP_STRENGTH,
+    PLAYER_SPEED,
+    GRAPHICS_PATH,
+    PLAYER_HITBOX_HEIGHT,
+    PLAYER_HITBOX_WIDTH_RATIO,
+    PLAYER_PICKUP_WIDTH,
+    PLAYER_PICKUP_HEIGHT,
+)
 
 
 class Player(pygame.sprite.Sprite):
@@ -20,6 +29,17 @@ class Player(pygame.sprite.Sprite):
         self.spawn_pos = pos
         self.lives = 3
         self.invincible_until = 0
+
+    def collision_rect(self):
+        width = max(1, int(self.rect.width * PLAYER_HITBOX_WIDTH_RATIO))
+        hitbox = pygame.Rect(0, 0, width, PLAYER_HITBOX_HEIGHT)
+        hitbox.midbottom = self.rect.midbottom
+        return hitbox
+
+    def pickup_rect(self):
+        pickup = pygame.Rect(0, 0, PLAYER_PICKUP_WIDTH, PLAYER_PICKUP_HEIGHT)
+        pickup.midbottom = self.rect.midbottom
+        return pickup
 
     def collect_bone(self, value=1):
         self.bones_collected += value
@@ -77,22 +97,24 @@ class Player(pygame.sprite.Sprite):
         self._update_facing()
 
     def _resolve_horizontal(self, platforms):
+        hitbox = self.collision_rect()
         for platform in platforms:
-            if self.rect.colliderect(platform):
+            if hitbox.colliderect(platform):
                 if self.velocity.x > 0:
-                    self.rect.right = platform.left
+                    self.rect.right = platform.left + (self.rect.right - hitbox.right)
                 elif self.velocity.x < 0:
-                    self.rect.left = platform.right
+                    self.rect.left = platform.right - (hitbox.left - self.rect.left)
 
     def _resolve_vertical(self, platforms):
+        hitbox = self.collision_rect()
         for platform in platforms:
-            if self.rect.colliderect(platform):
+            if hitbox.colliderect(platform):
                 if self.velocity.y > 0:
-                    self.rect.bottom = platform.top
+                    self.rect.bottom = platform.top + (self.rect.bottom - hitbox.bottom)
                     self.velocity.y = 0
                     self.on_ground = True
                 elif self.velocity.y < 0:
-                    self.rect.top = platform.bottom
+                    self.rect.top = platform.bottom - (hitbox.top - self.rect.top)
                     self.velocity.y = 0
 
     def _clamp_to_level(self, level_width):
